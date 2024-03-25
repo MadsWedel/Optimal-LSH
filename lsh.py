@@ -100,16 +100,16 @@ class lsh:
 		self.projections = numpy.random.randn(self.k, self.dim)
 		self.bias = numpy.random.rand(self.k, 1)
 		if 0:
-			print "Dim is", self.dim
-			print 'Projections:\n', self.projections
+			print ("Dim is", self.dim)
+			print ('Projections:\n', self.projections)
 			# print 'T1 hash:\n', self.t1hash
 			# print 'T2 hash:\n', self.t2hash
 		if 0:
 			# Write out the project data so we can check it's properties.
 			# Should be Gaussian with mean of zero and variance of 1.
 			fp = open('Projections.data', 'w')
-			for i in xrange(0,self.projections.shape[0]):
-				for j in xrange(0,self.projections.shape[1]):
+			for i in range(0,self.projections.shape[0]):
+				for j in range(0,self.projections.shape[1]):
 					fp.write('%g ' % self.projections[i,j])
 				fp.write('\n')
 			
@@ -127,26 +127,24 @@ class lsh:
 			self.CreateProjections(len(data))
 		bins = numpy.zeros((self.k,1), 'int')
 		if lsh.firstTimeCalculateHashes:
-			print 'data = ', numpy.transpose(data)
-			print 'bias = ', numpy.transpose(self.bias)
-			print 'projections = ', 
+			print('data = ', numpy.transpose(data))
+			print('bias = ', numpy.transpose(self.bias))
+			print('projections = ')
 			for i in range(0, self.projections.shape[0]):
 				for j in range(0, self.projections.shape[1]):
-					print self.projections[i][j], 
-				print
+					print(self.projections[i][j], end=' ')
+				print()
 			# print 't1Hash = ', self.t1hash
 			# print 't2Hash = ', self.t2hash
 			firstTimeCalculateHashes = False
-			print "Bin values:", self.bias + \
-							numpy.dot(self.projections, data)/self.w
-			print "Type of bins:", type(self.bias + \
-							numpy.dot(self.projections, data)/self.w)
+			print("Bin values:", self.bias + numpy.dot(self.projections, data)/self.w)
+			print("Type of bins:", type(self.bias + numpy.dot(self.projections, data)/self.w))
 		if 0:
 			if lsh.debugFP == None:
-				print "Opening Projections file"
+				print ("Opening Projections file")
 				lsh.debugFP = open('Projections.data', 'w')
 			d = self.bias + numpy.dot(self.projections, data)/self.w
-			for i in xrange(0, len(d)):
+			for i in range(0, len(d)):
 				lsh.debugFP.write('%g\n' % d[i])
 			lsh.debugFP.write('\n')
 			lsh.debugFP.flush()
@@ -176,7 +174,7 @@ class lsh:
 	# Just a debug version that returns the bins too.
 	def CalculateHashes2(self, data):
 		if self.projections == None:
-			print "CalculateHashes2: data.shape=%s, len(data)=%d" % (str(data.shape), len(data))
+			print ("CalculateHashes2: data.shape=%s, len(data)=%d" % (str(data.shape), len(data)))
 			self.CreateProjections(len(data))
 		bins = numpy.zeros((self.k,1), 'int')
 		parray = numpy.dot(self.projections, data)
@@ -293,13 +291,13 @@ class lsh:
 				bucketLens.append(l)
 		theValues = sorted(bucketLens)
 		med = theValues[(len(theValues)+1)/2-1]
-		print "Bucket Counts:"
-		print "\tTotal indexed points:", sumCount
-		print "\tT1 Buckets filled: %d/%d" % (len(self.buckets), 0)
-		print "\tT2 Buckets used: %d/%d" % (numCount, 0)
-		print "\tMaximum T2 chain length:", maxCount, "at", maxLoc
-		print "\tAverage T2 chain length:", float(sumCount)/numCount
-		print "\tMedian T2 chain length:", med
+		print ("Bucket Counts:")
+		print ("\tTotal indexed points:", sumCount)
+		print ("\tT1 Buckets filled: %d/%d" % (len(self.buckets), 0))
+		print ("\tT2 Buckets used: %d/%d" % (numCount, 0))
+		print ("\tMaximum T2 chain length:", maxCount, "at", maxLoc)
+		print ("\tAverage T2 chain length:", float(sumCount)/numCount)
+		print ("\tMedian T2 chain length:", med)
 	
 	def HealthStats(self):
 		'''Count the number of points in each bucket (which is currently
@@ -339,11 +337,11 @@ class lsh:
 			r = self.Find(d+i)
 			matches = sum(map(lambda x: x==i, r))
 			if matches == 0:
-				print "Couldn't find item", i
+				print ("Couldn't find item", i)
 			elif matches == 1:
 				pass
 			if len(r) > 1: 
-				print "Found big bin for", i,":", r
+				print ("Found big bin for", i,":", r)
 	
 
 # Put together several LSH projections to form an index.  The only 
@@ -427,10 +425,9 @@ class index:
 		a list of results, each result has the candidate ID and distance.'''
 		s = self.Find(queryData, multiprobeR)
 		# print "Intermediate results are:", s
-		d = map(lambda (id,count): (id,((GetData(id)-queryData)**2).sum(), \
-				count), s)
+		d = map(lambda item: (item[0], ((GetData(item[0])-queryData)**2).sum(), item[1]), s)
 		s = sorted(d, key=operator.itemgetter(1))
-		return [(self.FindID(i),d) for (i,d,c) in s]
+		return [(self.FindID(i), d) for (i, d, c) in s]
 	
 	# Put some data into the hash tables.
 	def Test(self, n):
@@ -439,14 +436,13 @@ class index:
 			self.InsertIntoTable(i, d+i)
 		for i in range(0,n):
 			r = self.Find(d+i)
-			print r
+			print (r)
 	
 	# Print the statistics of each hash table.
 	def Stats(self):
 		for i in range(0, len(self.projections)):
 			p = self.projections[i]
-			print "Buckets", i, 
-			p.Stats()
+			print ("Buckets", i, p.Stats())
 
 	# Get al the IDs that are part of this index.  Just check one hash
 	def GetAllIndices(self):
@@ -460,7 +456,7 @@ class index:
 		b = []
 		for p in self.projections:
 			( t1, t2, bins, parray) = p.CalculateHashes2(data)
-			print "Bucket:", t1, t2, bins, parray
+			print ("Bucket:", t1, t2, bins, parray)
 			b += (t1, t2)
 		return b
 	
@@ -502,12 +498,11 @@ def SaveIndex(filename, ind):
 		fp = open(filename, 'w')
 		pickle.dump(ind, fp)
 		fp.close()
-		statinfo = os.stat(filename,)
+		statinfo = os.stat(filename)
 		if statinfo:
-			print "Wrote out", statinfo.st_size, "bytes to", \
-				filename
+			print("Wrote out", statinfo.st_size, "bytes to", filename)
 	except:
-		print "Couldn't pickle index to file", filename
+		print("Couldn't pickle index to file", filename)
 		traceback.print_exc(file=sys.stderr)
 
 # Read an LSH index from a pickle file.	
@@ -516,7 +511,7 @@ def LoadIndex(filename):
 		try:
 			fp = open(filename, 'r')
 		except:
-			print "Couldn't open %s to read LSH Index" % (filename)
+			print ("Couldn't open %s to read LSH Index" % (filename))
 			return None
 	else:
 		fp = filename
@@ -525,7 +520,7 @@ def LoadIndex(filename):
 		fp.close()
 		return ind
 	except:
-		print "Couldn't read pickle file", filename
+		print ("Couldn't read pickle file", filename)
 		traceback.print_exc(file=sys.stderr)
 
 	
@@ -559,12 +554,11 @@ class TestDataClass:
 					lineCount += 1
 				fp.close()
 			else:
-				print "Can't open %s to LoadData()" % filename
+				print ("Can't open %s to LoadData()" % filename)
 		except:
-			print "Error loading data from %s in TestDataClass.LoadData()" \
-				% filename
+			print ("Error loading data from %s in TestDataClass.LoadData()" % filename)
 			traceback.print_exc(file=sys.stderr)
-		print "self.myData has %d lines and is:" % lineCount, self.myData
+		print ("self.myData has %d lines and is:" % lineCount, self.myData)
 				
 	def SaveData(self, filename):
 		'''Save this data in a flat file.  One line per data point.'''
@@ -572,7 +566,7 @@ class TestDataClass:
 		try:
 			fp = open(filename, 'w')
 			if fp:
-				for i in xrange(0, self.NumPoints()):
+				for i in range(0, self.NumPoints()):
 					data = self.RetrieveData(i).reshape(numDims)
 					fp.write(' '.join([str(d) for d in data]) + '\n')
 				fp.close()
@@ -592,8 +586,7 @@ class TestDataClass:
 			if features != None:
 				self.myIndex.InsertIntoTable(itemID, features)
 				itemCount += 1
-		print "Finished indexing %d items in %g seconds." % \
-			(itemCount, time.clock()-tic)
+		print ("Finished indexing %d items in %g seconds." % (itemCount, time.clock()-tic))
 		sys.stdout.flush()
 	
 	def RetrieveData(self, id):
@@ -620,7 +613,7 @@ class TestDataClass:
 		Save the results in a dictionary.'''
 		numPoints = self.NumPoints()
 		self.nearestNeighbors = {}
-		for i in xrange(0,count):
+		for i in range(0,count):
 			qid = self.GetRandomQuery()				# Pick random query
 			qData = self.RetrieveData(qid)				# Find it's data
 			nearestDistance2 = None
@@ -629,14 +622,14 @@ class TestDataClass:
 				if qid != id2:
 					d2 = ((self.RetrieveData(id2)-qData)**2).sum()
 					if id == -1:					# Debugging
-						print qid, id2, qData, self.RetrieveData(id2), d2
+						print (qid, id2, qData, self.RetrieveData(id2), d2)
 					if nearestDistance2 == None or d2 < nearestDistance2:
 						nearestDistance2 = d2
 						nearestIndex = id2
 			self.nearestNeighbors[qid] = \
 				(nearestIndex, math.sqrt(nearestDistance2))
 			if qid == -1:
-				print qid, nearestIndex, math.sqrt(nearestDistance2)
+				print (qid, nearestIndex, math.sqrt(nearestDistance2))
 				sys.stdout.flush()
 	
 	def SaveNearestNeighbors(self, filename):
@@ -653,7 +646,7 @@ class TestDataClass:
 				fp.write('%s %g %s\n' % (str(query), dist, str(nn)))
 			fp.close()
 		else:
-			print "Can't open %s to write nearest-neighbor data" % filename
+			print ("Can't open %s to write nearest-neighbor data" % filename)
 	
 	def LoadNearestNeighbors(self, filename):
 		'''Load a file full of nearest neighbor data.'''
@@ -664,7 +657,7 @@ class TestDataClass:
 		else:
 			fp = open(filename, 'r')
 		if fp:
-			print "Loading nearest-neighbor data from:", filename
+			print ("Loading nearest-neighbor data from:", filename)
 			for theLine in fp:
 				(k,d,nn) = theLine.split()
 				if type(self.myData) == numpy.ndarray: # Check for array indices
@@ -675,9 +668,9 @@ class TestDataClass:
 				elif k in self.myData and nn in self.myData:	# dictionary index
 					self.nearestNeighbors[k] = (nn,float(d))
 			fp.close()
-			print " Loaded %d items into the nearest-neighbor dictionary." % len(self.nearestNeighbors)
+			print (" Loaded %d items into the nearest-neighbor dictionary." % len(self.nearestNeighbors))
 		else:
-			print "Can't open %s to read nearest neighbor data." % filename
+			print ("Can't open %s to read nearest neighbor data." % filename)
 					
 	def IterateKeys(self):
 		'''Iterate through all possible keys in the dataset.'''
@@ -689,7 +682,7 @@ class TestDataClass:
 		numPoints = self.NumPoints()
 		oneColumn = numpy.zeros((numPoints))
 		medians = numpy.zeros((numDim))
-		for d in xrange(numDim):
+		for d in range(numDim):
 			rowNumber = 0
 			for k in self.IterateKeys():
 				oneData = self.RetrieveData(k)
@@ -708,8 +701,7 @@ class TestDataClass:
 		to also print the NN binary projections.'''
 		numPoints = self.NumPoints()
 		# medians = self.FindMedian()		# Not used now, but useful for binary quantization
-		print "Pulling %d items from the NearestNeighbors list for ComputeDistanceHistogram" % \
-			len(self.nearestNeighbors.items())
+		print ("Pulling %d items from the NearestNeighbors list for ComputeDistanceHistogram" % len(self.nearestNeighbors.items()))
 		for (queryKey,(nnKey,nnDist)) in self.nearestNeighbors.items():
 			randKey = self.GetRandomQuery()
 			
@@ -717,7 +709,7 @@ class TestDataClass:
 			nnData = self.RetrieveData(nnKey)
 			randData = self.RetrieveData(randKey)
 			if len(queryData) == 0 or len(nnData) == 0:			# Missing, probably because of subsampling
-				print "Skipping %s/%s because data is missing." % (queryKey, nnKey)
+				print ("Skipping %s/%s because data is missing." % (queryKey, nnKey))
 				continue
 			anyD2 = ((randData-queryData)**2).sum()
 			
@@ -731,9 +723,7 @@ class TestDataClass:
 			randProj = numpy.sign(numpy.dot(projection, randData))
 			
 			# print 'CDH:', queryProj, nnProj, randProj
-			fp.write('%g %g %d %d\n' % \
-				(nnDist, math.sqrt(anyD2), \
-				 queryProj==nnProj, queryProj==randProj))
+			fp.write('%g %g %d %d\n' % (nnDist, math.sqrt(anyD2), (queryProj == nnProj).all(), (queryProj == randProj).all()))
 			fp.flush()			
 		
 	def ComputePnnPany(self, w, k, l, multiprobe=0):
@@ -758,7 +748,7 @@ class TestDataClass:
 		for (queryKey,(nnKey,dist)) in self.nearestNeighbors.items():
 			queryData = self.RetrieveData(queryKey)
 			if queryData == None or len(queryData) == 0:
-				print "Can't find data for key %s" % str(queryKey)
+				print ("Can't find data for key %s" % str(queryKey))
 				sys.stdout.flush()
 				continue
 			startQueryTime = time.clock()	# Measure CPU time
@@ -775,15 +765,15 @@ class TestDataClass:
 			# Some debugging for k curve.. print individual results
 			# print "ComputePnnPany Debug:", w, k, l, len(matches), numPoints, cnn, cnnFull, cany, canyFull
 		recallTestTime = time.clock() - startRecallTestTime
-		print "Tested %d NN queries in %g seconds." % (queryCount, recallTestTime)
+		print ("Tested %d NN queries in %g seconds." % (queryCount, recallTestTime))
 		sys.stdout.flush()
 		if queryCount == 0:
 			queryCount = 1					# To prevent divide by zero
 		perQueryTime = totalQueryTime/queryCount
-		print "CPP:", cnn, cnnFull, cany, canyFull
-		print "CPP:",  cnn/float(queryCount*l), cnnFull/float(queryCount), \
+		print ("CPP:", cnn, cnnFull, cany, canyFull)
+		print ("CPP:",  cnn/float(queryCount*l), cnnFull/float(queryCount), \
 			cany/float(queryCount*l*numPoints), canyFull/float(queryCount*numPoints), \
-			perQueryTime, numDims
+			perQueryTime, numDims)
 		return cnn/float(queryCount*l), cnnFull/float(queryCount), \
 			cany/float(queryCount*l*numPoints), canyFull/float(queryCount*numPoints), \
 			perQueryTime, numDims
@@ -794,8 +784,8 @@ class TestDataClass:
 			for w in wList:
 				(pnn, pnnFull, pany, panyFull, queryTime, numDims) = self.ComputePnnPany(w, 1, 10, multiprobe)
 				if w == wList[0]:
-					print "# w pnn pany queryTime"
-				print "PnnPany:", w, multiprobe, pnn, pany, queryTime
+					print ("# w pnn pany queryTime")
+				print ("PnnPany:", w, multiprobe, pnn, pany, queryTime)
 				sys.stdout.flush()
 
 	def ComputeKCurve(self, kList, w = .291032, r=0):
@@ -805,7 +795,7 @@ class TestDataClass:
 		l = 10
 		for k in sorted(list(kList)):
 			(pnn, pnnFull, pany, panyFull, queryTime, numDims) = self.ComputePnnPany(w, k, l, r)
-			print w, k, l, r, pnn, pany, pany*numPoints, queryTime
+			print (w, k, l, r, pnn, pany, pany*numPoints, queryTime)
 			sys.stdout.flush()
 
 	def ComputeLCurve(self, lList, w = 2.91032, k=10, r=0):
@@ -816,9 +806,9 @@ class TestDataClass:
 		for l in sorted(list(lList)):
 			(pnn, pnnFull, pany, panyFull, queryTime, numDims) = self.ComputePnnPany(w, k, l, r)
 			if firstTime:
-				print "# w k l r pnnFull, panyFull panyFull*N queryTime"
+				print ("# w k l r pnnFull, panyFull panyFull*N queryTime")
 				firstTime = False
-			print w, k, l, r, pnnFull, panyFull, panyFull*numPoints, queryTime
+			print (w, k, l, r, pnnFull, panyFull, panyFull*numPoints, queryTime)
 			sys.stdout.flush()
 
 	
@@ -847,8 +837,8 @@ class RegularTestData(TestDataClass):
 		i = 0
 		for x in range(-numDivs, numDivs+1):
 			for y in range(-numDivs, numDivs+1):
-				self.myData[0, i] = x/float(divs)
-				self.myData[1, i] = y/float(divs)
+				self.myData[0, i] = x/float(numDivs)
+				self.myData[1, i] = y/float(numDivs)
 				i += 1
 	
 				
@@ -872,7 +862,7 @@ def XXXTestDimensionality2():
 	rBig = binWidth/8.0
 	rSmall = rBig/2.0
 	cBig = 0.0; cSmall = 0.0
-	for id in random.sample(ind.GetAllIndices(), 2):
+	for id in random.sample(myTestIndex.GetAllIndices(), 2):
 		qp = FindLSHTestData(id)
 		cBig += myTestIndex.CountInsideRadius(qp, myTestData.FindData, rBig)
 		cSmall += myTestIndex.CountInsideRadius(qp, myTestData.FindData, rSmall)
@@ -880,8 +870,8 @@ def XXXTestDimensionality2():
 		dim = math.log(cBig/cSmall)/math.log(rBig/rSmall)
 	else:
 		dim = 0
-	print cBig, cSmall, dim
-	return ind
+	print (cBig, cSmall, dim)
+	return myTestIndex
 
                    
 # Generate some 2-dimensional data, put it into an index and then
@@ -896,14 +886,14 @@ def GraphicalTest(k, l, N):
 	for i in range(0,numPoints):
 		ind.InsertIntoTable(i, myTestData.RetrieveData(i))
 	i = 42
-	r = ind.Find(data[i,:])
+	r = ind.Find(myTestData[i,:])
 	fp = open('lshtestpoints.txt','w')
 	for i in range(0,numPoints):
 		if i in r: 
 			c = r[i]
 		else:
 			c = 0
-		fp.write("%g %g %d\n" % (data[i,0], data[i,1], c))
+		fp.write("%g %g %d\n" % (myTestData[i,0], myTestData[i,1], c))
 	fp.close()
 	return r
 		
@@ -921,8 +911,8 @@ def SimpleTest():
 		data = myTestData.RetrieveData(id)
 		myTestIndex.InsertIntoTable(id, data)
 	endLoad = time.clock()
-	print "Time to load %d points is %gs (%gms per point)" % \
-		(numPoints, endLoad-startLoad, (endLoad-startLoad)/numPoints*1000.0)
+	print ("Time to load %d points is %gs (%gms per point)" % \
+		(numPoints, endLoad-startLoad, (endLoad-startLoad)/numPoints*1000.0))
 
 	startRecall = time.clock()
 	resCount = 0
@@ -935,10 +925,10 @@ def SimpleTest():
 		if not res == None:
 			resCount += len(res)
 	endRecall = time.clock()
-	print "Time to recall %d points is %gs (%gms per point" % \
-		(numPoints, endRecall-startRecall, (endRecall-startRecall)/numPoints*1000.0)
-	print "Found a recall hit all but %d times, average results per query is %g" % \
-		(numPoints-resFound, resCount/float(numPoints))
+	print ("Time to recall %d points is %gs (%gms per point" % \
+		(numPoints, endRecall-startRecall, (endRecall-startRecall)/numPoints*1000.0))
+	print ("Found a recall hit all but %d times, average results per query is %g" % \
+		(numPoints-resFound, resCount/float(numPoints)))
 			
 			
 
@@ -1011,53 +1001,59 @@ if __name__ == '__main__':
 				defaultDims = int(arg)
 				defaultFileName = 'testData%03d' % defaultDims
 			except:
-				print "Couldn't parse new value for defaultDims: %s" % arg
-			print 'New default dimensions for test is', defaultDims
+				print ("Couldn't parse new value for defaultDims: %s" % arg)
+			print ('New default dimensions for test is', defaultDims)
 		elif arg == '-f':
 			defaultFileName = sys.argv.pop(0)
-			print 'New file name is', defaultFileName
+			print ('New file name is', defaultFileName)
 		elif arg == '-k':
 			arg = sys.argv.pop(0)
 			try:
 				defaultK = int(arg)
 			except:
-				print "Couldn't parse new value for defaultK: %s" % arg
-			print 'New default k for test is', defaultK
+				print ("Couldn't parse new value for defaultK: %s" % arg)
+			print ('New default k for test is', defaultK)
 		elif arg == '-l':
 			arg = sys.argv.pop(0)
 			try:
 				defaultL = int(arg)
 			except:
-				print "Couldn't parse new value for defaultL: %s" % arg
-			print 'New default l for test is', defaultL
+				print ("Couldn't parse new value for defaultL: %s" % arg)
+			print ('New default l for test is', defaultL)
 		elif arg == '-c':
 			arg = sys.argv.pop(0)
 			try:
 				defaultClosest = int(arg)
 			except:
-				print "Couldn't parse new value for defaultClosest: %s" % arg
-			print 'New default number closest for test is', defaultClosest
+				print ("Couldn't parse new value for defaultClosest: %s" % arg)
+			print ('New default number closest for test is', defaultClosest)
 		elif arg == '-w':
 			arg = sys.argv.pop(0)
 			try:
 				defaultW = float(arg)
 			except:
-				print "Couldn't parse new value for w: %s" % arg
-			print 'New default W for test is', defaultW
+				print ("Couldn't parse new value for w: %s" % arg)
+			print ('New default W for test is', defaultW)
 		elif arg == '-r':
 			arg = sys.argv.pop(0)
 			try:
 				defaultMultiprobeRadius = int(arg)
 			except:
-				print "Couldn't parse new value for multiprobeRadius: %s" % arg
-			print 'New default multiprobeRadius for test is', defaultMultiprobeRadius
+				print ("Couldn't parse new value for multiprobeRadius: %s" % arg)
+			print ('New default multiprobeRadius for test is', defaultMultiprobeRadius)
 		elif arg == '-create':			# Create some uniform random data and find NN
 			myTestData = RandomTestData()
 			myTestData.CreateData(100000, defaultDims)
 			myTestData.SaveData(defaultFileName + '.dat')
-			print "Finished creating random data.  Now computing nearest neighbors..."
+			print ("Finished creating random data.  Now computing nearest neighbors...")
 			myTestData.FindNearestNeighbors(defaultClosest)
 			myTestData.SaveNearestNeighbors(defaultFileName + '.nn')
+		elif arg == '-synthetic':			# Create some uniform random data and find NN
+			myTestData = RandomTestData()
+			myTestData.LoadData('synthetic.dat')
+			print ("Finished loading synthetic data.  Now computing nearest neighbors...")
+			myTestData.FindNearestNeighbors(defaultClosest)
+			myTestData.SaveNearestNeighbors('synthetic.nn')
 		elif arg == '-histogram':		# Calculate distance histograms
 			myTestData = TestDataClass()
 			myTestData.LoadData(defaultFileName + '.dat')
@@ -1067,12 +1063,22 @@ if __name__ == '__main__':
 				myTestData.ComputeDistanceHistogram(fp)
 				fp.close()
 			else:
-				print "Can't open %s.distances to store NN data" % defaultFileName
+				print ("Can't open %s.distances to store NN data" % defaultFileName)
+		elif arg == '-syn-his':		# Calculate distance histograms
+			myTestData = TestDataClass()
+			myTestData.LoadData('synthetic.dat')
+			myTestData.LoadNearestNeighbors('synthetic.nn')
+			fp = open('synthetic.distances', 'w')
+			if fp:
+				myTestData.ComputeDistanceHistogram(fp)
+				fp.close()
+			else:
+				print ("Can't open %s.distances to store NN data synthetic")
 		elif arg == '-sanity':
 			myTestData = TestDataClass()
 			myTestData.LoadData(defaultFileName + '.dat')
-			print myTestData.RetrieveData(myTestData.GetRandomQuery())
-			print myTestData.RetrieveData(myTestData.GetRandomQuery())
+			print (myTestData.RetrieveData(myTestData.GetRandomQuery()))
+			print (myTestData.RetrieveData(myTestData.GetRandomQuery()))
 		elif arg == '-b':		# Calculate bucket probabilities
 			random.seed(0)
 			myTestData = TestDataClass()
@@ -1111,14 +1117,14 @@ if __name__ == '__main__':
 			# sys.argv.pop(0)
 			timingModels = []
 			while len(sys.argv) > 0:
-				print "Parsing timing argument", sys.argv[0], len(sys.argv)
+				print ("Parsing timing argument", sys.argv[0], len(sys.argv))
 				if sys.argv[0].startswith('-'):
 					break
 				try:
 					(w,k,l,r,rest) = sys.argv[0].strip().split(',', 5)
 					timingModels.append([float(w), int(k), int(l), int(r)])
 				except:
-					print "Couldn't parse %s.  Need w,k,l,r" % sys.argv[0]
+					print ("Couldn't parse %s.  Need w,k,l,r" % sys.argv[0])
 				sys.argv.pop(0)
 			myTestData = TestDataClass()
 			myTestData.LoadData(defaultFileName + '.dat')
@@ -1126,7 +1132,7 @@ if __name__ == '__main__':
 			for (w, k, l, r) in timingModels:
 				sys.stdout.flush()
 				(pnnL1, pnn, panyL1, pany, perQueryTime, numDims) = myTestData.ComputePnnPany(w, k, l, r)
-				print "Timing:", w, k, l, r, myTestData.NumPoints(), pnn, pany, perQueryTime*1000.0, numDims
+				print ("Timing:", w, k, l, r, myTestData.NumPoints(), pnn, pany, perQueryTime*1000.0, numDims)
 		
 		elif arg == '-test':		# Calculate bucket probabilities as a function of l
 			random.seed(0)
@@ -1136,4 +1142,4 @@ if __name__ == '__main__':
 			# ComputePnnPanyCurve(myData, [.291032])
 			myTestData.ComputeLCurve([defaultL], w=defaultW, k=defaultK)
 		else:
-			print '%s: Unknown test argument %s' % (cmdName, arg)
+			print ('%s: Unknown test argument %s' % (cmdName, arg))

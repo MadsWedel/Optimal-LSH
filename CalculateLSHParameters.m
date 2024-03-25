@@ -48,10 +48,10 @@ end
 if ~isscalar(N)
     error('First argument must be a scalar count.');
 end
-if ~isvector(dnnHist) || ~isvector(dnnHist) || length(dnnHist) ~= length(dnnBins)
+if ~isvector(dnnHist) || ~isvector(dnnBins) || length(dnnHist) ~= length(dnnBins)
     error('dnnHist and dnnBins must be the same length vectors.');
 end
-if ~isvector(danyHist) || ~isvector(danyHist) || length(danyHist) ~= length(danyBins)
+if ~isvector(danyHist) || ~isvector(danyBins) || length(danyHist) ~= length(danyBins)
     error('danyHist and danyBins must be the same length vectors.');
 end
 % Set the default parameter values.

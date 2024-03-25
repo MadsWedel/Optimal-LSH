@@ -1,25 +1,26 @@
 % Create some data.  First pick out the test dimensions, and the locations
 % of some files.
-D = 4;
-PythonCmd = 'python2.6';
-LSHCmd = 'lsh.py';
+D = 2;
+PythonCmd = 'python';
+LSHCmd = 'E:\Github\Optimal-LSH\lsh.py';
 tmpFile = '/tmp/lshtest.out';
 tmpFile2 = '/tmp/lshtest.out2';
 subPlots = 1;
 
 %%
 % Now run the python command to create the data.
-cmd = sprintf('%s %s -d %d -create', PythonCmd, LSHCmd, D);
-fprintf('Running the command: %s\n', cmd);
-system(cmd);
-%%
-% Now run the python command to measure the distance data
-cmd = sprintf('%s %s -d %d -histogram', PythonCmd, LSHCmd, D);
-fprintf('Running the command: %s\n', cmd);
-system(cmd);
-%%
-% Load in the distance data and calculate the distance histograms.
-testData = load(sprintf('testData%03d.distances', D));
+% cmd = sprintf('%s %s -d %d -create', PythonCmd, LSHCmd, D);
+% fprintf('Running the command: %s\n', cmd);
+% system(cmd);
+% %%
+% % Now run the python command to measure the distance data
+% cmd = sprintf('%s %s -d %d -histogram', PythonCmd, LSHCmd, D);
+% fprintf('Running the command: %s\n', cmd);
+% system(cmd);
+% %%
+% % Load in the distance data and calculate the distance histograms.
+% testData = load(sprintf('testData%03d.distances', D));
+testData = load('synthetic.distances');
 nBins = 40;
 [dnnHist, dnnBins] = hist(testData(:,1), nBins);
 [danyHist, danyBins] = hist(testData(:,2), nBins);
@@ -34,11 +35,11 @@ title(sprintf('Distance Histogram for %d-D data', D));
 %%
 % Now calculate the optimum LSH parameters.
 N=100000;
-deltaTarget = 0.5;
+deltaTarget = 0.9;
 r = 0;
 uHash = 1;
 uCheck = 1;
-results = CalculateMPLSHParameters(N, ... 
+results = CalculateLSHParameters(N, ... 
     dnnHist, dnnBins, danyHist, danyBins, deltaTarget, r, uHash, uCheck);
 %%
 % Now let's run the W test.
