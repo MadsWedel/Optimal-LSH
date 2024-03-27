@@ -123,7 +123,7 @@ class lsh:
 	def CalculateHashes(self, data):
 		'''Multiply the projection data (KxD) by some data (Dx1), 
 		and quantize'''
-		if self.projections == None:
+		if self.projections is None:
 			self.CreateProjections(len(data))
 		bins = numpy.zeros((self.k,1), 'int')
 		if lsh.firstTimeCalculateHashes:
@@ -192,7 +192,7 @@ class lsh:
 	# [Need to store bins in integer array so we don't convert to 
 	# longs prematurely and get the wrong hash!]
 	def CalculateHashIterator(self, data, multiprobeRadius=0):
-		if self.projections == None:
+		if self.projections is None:
 			self.CreateProjections(len(data))
 		bins = numpy.zeros((self.k,1), 'int')
 		directVector = numpy.zeros((self.k,1), 'int')
@@ -580,13 +580,13 @@ class TestDataClass:
 		the LSH parameters: w, k and l.'''
 		self.myIndex = index(w, k, l)
 		itemCount = 0
-		tic = time.clock()
+		tic = time.process_time()
 		for itemID in self.IterateKeys():
 			features = self.RetrieveData(itemID)
-			if features != None:
+			if features.all() != None:
 				self.myIndex.InsertIntoTable(itemID, features)
 				itemCount += 1
-		print ("Finished indexing %d items in %g seconds." % (itemCount, time.clock()-tic))
+		print ("Finished indexing %d items in %g seconds." % (itemCount, time.process_time()-tic))
 		sys.stdout.flush()
 	
 	def RetrieveData(self, id):
@@ -743,17 +743,17 @@ class TestDataClass:
 		cany = 0; canyFull = 0
 		queryCount = 0							# Probe the index
 		totalQueryTime = 0
-		startRecallTestTime = time.clock()
+		startRecallTestTime = time.process_time()
 		# print "ComputePnnPany: Testing %d nearest neighbors." % len(self.nearestNeighbors.items())
 		for (queryKey,(nnKey,dist)) in self.nearestNeighbors.items():
 			queryData = self.RetrieveData(queryKey)
-			if queryData == None or len(queryData) == 0:
+			if queryData.all() == None or len(queryData) == 0:
 				print ("Can't find data for key %s" % str(queryKey))
 				sys.stdout.flush()
 				continue
-			startQueryTime = time.clock()	# Measure CPU time
+			startQueryTime = time.process_time()	# Measure CPU time
 			matches = self.myIndex.Find(queryData, multiprobe)
-			totalQueryTime += time.clock() - startQueryTime
+			totalQueryTime += time.process_time() - startQueryTime
 			for (m,c) in matches:
 				if nnKey == m:				# See if NN was found!!!
 					cnn += c
@@ -764,7 +764,7 @@ class TestDataClass:
 			queryCount += 1
 			# Some debugging for k curve.. print individual results
 			# print "ComputePnnPany Debug:", w, k, l, len(matches), numPoints, cnn, cnnFull, cany, canyFull
-		recallTestTime = time.clock() - startRecallTestTime
+		recallTestTime = time.process_time() - startRecallTestTime
 		print ("Tested %d NN queries in %g seconds." % (queryCount, recallTestTime))
 		sys.stdout.flush()
 		if queryCount == 0:
@@ -906,15 +906,15 @@ def SimpleTest():
 	myTestData = RandomTestData()
 	myTestData.CreateData(numPoints,dim)
 	myTestIndex = index(w=.4, k=10, l=10, N=numPoints)
-	startLoad = time.clock()
+	startLoad = time.process_time()
 	for id in myTestData.IterateKeys():
 		data = myTestData.RetrieveData(id)
 		myTestIndex.InsertIntoTable(id, data)
-	endLoad = time.clock()
+	endLoad = time.process_time()
 	print ("Time to load %d points is %gs (%gms per point)" % \
 		(numPoints, endLoad-startLoad, (endLoad-startLoad)/numPoints*1000.0))
 
-	startRecall = time.clock()
+	startRecall = time.process_time()
 	resCount = 0
 	resFound = 0
 	for id in myTestData.IterateKeys():
@@ -924,7 +924,7 @@ def SimpleTest():
 			resFound += 1
 		if not res == None:
 			resCount += len(res)
-	endRecall = time.clock()
+	endRecall = time.process_time()
 	print ("Time to recall %d points is %gs (%gms per point" % \
 		(numPoints, endRecall-startRecall, (endRecall-startRecall)/numPoints*1000.0))
 	print ("Found a recall hit all but %d times, average results per query is %g" % \
@@ -989,9 +989,9 @@ if __name__ == '__main__':
 	defaultW = 2.91032
 	defaultK = 10
 	defaultL = 1
-	defaultClosest = 1000
+	defaultClosest = 10000
 	defaultMultiprobeRadius = 0
-	defaultFileName = 'testData'
+	defaultFileName = 'synthetic'
 	cmdName = sys.argv.pop(0)
 	while len(sys.argv) > 0:
 		arg = sys.argv.pop(0).lower()
@@ -999,7 +999,8 @@ if __name__ == '__main__':
 			arg = sys.argv.pop(0)
 			try:
 				defaultDims = int(arg)
-				defaultFileName = 'testData%03d' % defaultDims
+				# defaultFileName = 'testData%03d' % defaultDims
+				defaultFileName = '/Users/christianvilen/Documents/Github/Optimal-LSH/synthetic'
 			except:
 				print ("Couldn't parse new value for defaultDims: %s" % arg)
 			print ('New default dimensions for test is', defaultDims)
@@ -1049,7 +1050,7 @@ if __name__ == '__main__':
 			myTestData.FindNearestNeighbors(defaultClosest)
 			myTestData.SaveNearestNeighbors(defaultFileName + '.nn')
 		elif arg == '-synthetic':			# Create some uniform random data and find NN
-			myTestData = RandomTestData()
+			myTestData = TestDataClass()
 			myTestData.LoadData('synthetic.dat')
 			print ("Finished loading synthetic data.  Now computing nearest neighbors...")
 			myTestData.FindNearestNeighbors(defaultClosest)

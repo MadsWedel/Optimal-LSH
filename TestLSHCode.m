@@ -1,8 +1,8 @@
 % Create some data.  First pick out the test dimensions, and the locations
 % of some files.
 D = 2;
-PythonCmd = 'python';
-LSHCmd = 'E:\Github\Optimal-LSH\lsh.py';
+PythonCmd = 'python3';
+LSHCmd = '/Users/christianvilen/Documents/Github/Optimal-LSH/lsh.py';
 tmpFile = '/tmp/lshtest.out';
 tmpFile2 = '/tmp/lshtest.out2';
 subPlots = 1;
@@ -35,7 +35,7 @@ title(sprintf('Distance Histogram for %d-D data', D));
 %%
 % Now calculate the optimum LSH parameters.
 N=100000;
-deltaTarget = 0.9;
+deltaTarget = 0.8;
 r = 0;
 uHash = 1;
 uCheck = 1;
